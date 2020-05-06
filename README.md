@@ -1,2 +1,2 @@
 # git-rstash
-Transfer your git stashes to and from remotes with ease!
+Transfer your Git stashes to and from remotes with ease!

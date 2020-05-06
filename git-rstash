@@ -2,7 +2,6 @@
 
 function usage() {
   echo 'usage: git rstash push <stash> [<remote>]'
-  echo 'TODO'
 }
 
 function push() {

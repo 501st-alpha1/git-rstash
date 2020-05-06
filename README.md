@@ -3,6 +3,8 @@ Transfer your Git stashes to and from remotes with ease!
 
 ## Usage
 
+Place or link `git-rstash` somewhere on your `PATH`, then:
+
 ```
 usage: git rstash push <stash> [<remote>]'
    or: git rstash fetch [<remote>]'

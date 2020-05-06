@@ -7,7 +7,7 @@ function usage() {
 }
 
 function push() {
-  [ -z "$1" ] && echo 'Error: please specify a stash number to push.' && return 1
+  [ -z "$1" ] && echo 'Error: please specify a stash number to push.' && exit 2
   remote=origin
   [ -z "$2" ] || remote="$2"
 

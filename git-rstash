@@ -51,6 +51,13 @@ function import() {
     SHA="$1"
   fi
 
+  # Start at 1 because Git won't save if duplicate of stash 0.
+  for i in $(seq 1 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
+  do
+    # If commit matches existing stash, abort early.
+    diff <(git rev-parse stash@{$i}) <(echo $SHA) >/dev/null && return 0
+  done
+
   git stash store --message "$(git show --no-patch --format=format:%s $SHA)" $SHA
 }
 

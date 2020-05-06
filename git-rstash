@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function usage() {
+  echo 'Usage:'
+  echo 'TODO'
+}
+
+case "$1" in
+  -h)
+    usage
+    exit 0
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

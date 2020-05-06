@@ -3,6 +3,7 @@
 function usage() {
   echo 'usage: git rstash push <stash> [<remote>]'
   echo '   or: git rstash fetch [<remote>]'
+  echo '   or: git rstash drop <stash> [<remote>]'
 }
 
 function push() {
@@ -22,6 +23,20 @@ function fetch() {
   git fetch "$remote" refs/stashes/*:refs/stashes/*
 }
 
+function drop() {
+  remote=origin
+  stashNum="$1"
+  shift
+  [ -z "$1" ] || remote="$1"
+  stashCommit=$(git rev-parse --short stash@{$stashNum})
+
+  read -p "Really delete stash $stashNum (commit $stashCommit) from $remote? " answer
+  if [ "$answer" == 'y' ]
+  then
+    git push $remote :refs/stashes/$stashCommit
+  fi
+}
+
 case "$1" in
   push)
     shift
@@ -30,6 +45,10 @@ case "$1" in
   fetch)
     shift
     fetch "$@"
+    ;;
+  drop|remove|delete)
+    shift
+    drop "$@"
     ;;
   -h)
     usage

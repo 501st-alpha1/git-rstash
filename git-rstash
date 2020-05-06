@@ -1,11 +1,25 @@
 #!/bin/bash
 
 function usage() {
-  echo 'Usage:'
+  echo 'usage: git rstash push <stash> [<remote>]'
   echo 'TODO'
 }
 
+function push() {
+  [ -z "$1" ] && echo 'Error: please specify a stash number to push.' && return 1
+  remote=origin
+  [ -z "$2" ] || remote="$2"
+
+  echo "Pushing stash $1 to $remote."
+
+  git push $remote stash@{$1}:refs/stashes/$(git rev-parse --short stash@{$1})
+}
+
 case "$1" in
+  push)
+    shift
+    push "$@"
+    ;;
   -h)
     usage
     exit 0

@@ -2,6 +2,7 @@
 
 function usage() {
   echo 'usage: git rstash push <stash> [<remote>]'
+  echo '   or: git rstash fetch [<remote>]'
 }
 
 function push() {
@@ -14,10 +15,21 @@ function push() {
   git push $remote stash@{$1}:refs/stashes/$(git rev-parse --short stash@{$1})
 }
 
+function fetch() {
+  remote=origin
+  [ -z "$1" ] || remote="$1"
+
+  git fetch "$remote" refs/stashes/*:refs/stashes/*
+}
+
 case "$1" in
   push)
     shift
     push "$@"
+    ;;
+  fetch)
+    shift
+    fetch "$@"
     ;;
   -h)
     usage

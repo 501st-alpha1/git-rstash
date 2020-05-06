@@ -6,6 +6,7 @@ function usage() {
   echo '   or: git rstash drop <stash> [<remote>]'
   echo '   or: git rstash import <SHA>'
   echo '   or: git rstash push-all [<remote>]'
+  echo '   or: git rstash import-all'
 }
 
 function push() {
@@ -63,6 +64,18 @@ function push-all() {
   done
 }
 
+function import-all() {
+  if [ ! -d .git/refs/stashes ]
+  then
+    echo 'Error: no stashes fetched or not in a Git repo.'
+  fi
+
+  for stash in $(ls .git/refs/stashes)
+  do
+    import "$stash"
+  done
+}
+
 case "$1" in
   push)
     shift
@@ -83,6 +96,10 @@ case "$1" in
   import)
     shift
     import "$@"
+    ;;
+  import-all)
+    shift
+    import-all
     ;;
   -h)
     usage

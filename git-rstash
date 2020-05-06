@@ -4,6 +4,7 @@ function usage() {
   echo 'usage: git rstash push <stash> [<remote>]'
   echo '   or: git rstash fetch [<remote>]'
   echo '   or: git rstash drop <stash> [<remote>]'
+  echo '   or: git rstash import <SHA>'
 }
 
 function push() {
@@ -38,6 +39,19 @@ function drop() {
   fi
 }
 
+function import() {
+  SHA=''
+  if [ -z "$1" ]
+  then
+    echo 'Error: please specify a SHA to import as a stash.'
+    exit 4
+  else
+    SHA="$1"
+  fi
+
+  git stash store --message "$(git show --no-patch --format=format:%s $SHA)" $SHA
+}
+
 case "$1" in
   push)
     shift
@@ -50,6 +64,10 @@ case "$1" in
   drop|remove|delete)
     shift
     drop "$@"
+    ;;
+  import)
+    shift
+    import "$@"
     ;;
   -h)
     usage

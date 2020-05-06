@@ -5,6 +5,7 @@ function usage() {
   echo '   or: git rstash fetch [<remote>]'
   echo '   or: git rstash drop <stash> [<remote>]'
   echo '   or: git rstash import <SHA>'
+  echo '   or: git rstash push-all [<remote>]'
 }
 
 function push() {
@@ -52,10 +53,24 @@ function import() {
   git stash store --message "$(git show --no-patch --format=format:%s $SHA)" $SHA
 }
 
+function push-all() {
+  remote=origin
+  [ -z "$1" ] || remote="$1"
+
+  for i in $(seq 0 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
+  do
+    git rstash push $i "$remote"
+  done
+}
+
 case "$1" in
   push)
     shift
     push "$@"
+    ;;
+  push-all)
+    shift
+    push-all "$@"
     ;;
   fetch)
     shift

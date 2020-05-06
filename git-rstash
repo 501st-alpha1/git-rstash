@@ -55,7 +55,7 @@ function import() {
   for i in $(seq 1 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
   do
     # If commit matches existing stash, abort early.
-    diff <(git rev-parse stash@{$i}) <(echo $SHA) >/dev/null && return 0
+    diff <(git rev-parse stash@{$i}) <(git rev-parse $SHA) >/dev/null && return 0
   done
 
   git stash store --message "$(git show --no-patch --format=format:%s $SHA)" $SHA

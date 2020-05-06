@@ -60,7 +60,7 @@ function push-all() {
 
   for i in $(seq 0 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
   do
-    git rstash push $i "$remote"
+    push $i "$remote"
   done
 }
 

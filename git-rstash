@@ -77,29 +77,12 @@ function import-all() {
 }
 
 case "$1" in
-  push)
-    shift
-    push "$@"
-    ;;
-  push-all)
-    shift
-    push-all "$@"
-    ;;
-  fetch)
-    shift
-    fetch "$@"
+  push|push-all|fetch|import|import-all)
+    "$@"
     ;;
   drop|remove|delete)
     shift
     drop "$@"
-    ;;
-  import)
-    shift
-    import "$@"
-    ;;
-  import-all)
-    shift
-    import-all
     ;;
   -h)
     usage

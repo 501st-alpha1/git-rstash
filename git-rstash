@@ -25,6 +25,7 @@ function fetch() {
 
 function drop() {
   remote=origin
+  [ -z "$1" ] && echo 'Error: please specify a stash number to drop.' && exit 3
   stashNum="$1"
   shift
   [ -z "$1" ] || remote="$1"

@@ -72,12 +72,15 @@ function push-all() {
 }
 
 function import-all() {
-  if [ ! -d .git/refs/stashes ]
+  # use git show-ref instead of check the existence of directory .git/refs/stashes,
+  # because in the submodule case, the path of refs was located at .git/modules/<sumodule_name>/refs
+  stashes=$(git show-ref | grep stashes | awk {'print $2'} | awk -F "/" {'print $3'})
+  if [ -z "$stashes" ]
   then
     echo 'Error: no stashes fetched or not in a Git repo.'
   fi
 
-  for stash in $(ls .git/refs/stashes)
+  for stash in $stashes
   do
     import "$stash"
   done

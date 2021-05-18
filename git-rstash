@@ -38,10 +38,13 @@ function drop() {
   # core.abbrev configuration variable, it can be varied from machine to machine.
   stashCommit=$(git rev-parse stash@{$stashNum})
 
-  read -p "Really delete stash $stashNum (commit ${stashCommit:0:8}) from $remote? " answer
+  read -p "Really delete stash $stashNum (commit ${stashCommit:0:8}) from $remote and local refs/stashes? " answer
   if [ "$answer" == 'y' ]
   then
+    # remove from remote refs/stashes
     git push $remote :refs/stashes/$stashCommit
+    # remove from local refs/stashes
+    git update-ref -d refs/stashes/$stashCommit
   fi
 }
 

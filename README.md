@@ -11,6 +11,7 @@ usage: git rstash push <stash> [<remote>]'
    or: git rstash drop <stash> [<remote>]'
    or: git rstash import <SHA>'
    or: git rstash push-all [<remote>]'
+   or: git rstash drop-all [<remote>]'
    or: git rstash import-all'
 ```
 

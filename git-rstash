@@ -6,6 +6,7 @@ function usage() {
   echo '   or: git rstash drop <stash> [<remote>]'
   echo '   or: git rstash import <SHA>'
   echo '   or: git rstash push-all [<remote>]'
+  echo '   or: git rstash drop-all [<remote>]'
   echo '   or: git rstash import-all'
 }
 
@@ -84,6 +85,16 @@ function push-all() {
   done
 }
 
+function drop-all() {
+  remote=origin
+  [ -z "$1" ] || remote="$1"
+
+  for i in $(seq 0 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
+  do
+    drop $i "$remote"
+  done
+}
+
 function import-all() {
   # use git show-ref instead of check the existence of directory .git/refs/stashes,
   # because in the submodule case, the path of refs was located at .git/modules/<sumodule_name>/refs
@@ -100,7 +111,7 @@ function import-all() {
 }
 
 case "$1" in
-  push|push-all|fetch|import|import-all)
+  push|push-all|fetch|import|import-all|drop-all)
     "$@"
     ;;
   drop|remove|delete)

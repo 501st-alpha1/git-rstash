@@ -6,6 +6,7 @@ function usage() {
   echo '   or: git rstash drop <stash> [<remote>]'
   echo '   or: git rstash import <SHA>'
   echo '   or: git rstash push-all [<remote>]'
+  echo '   or: git rstash drop-all [<remote>]'
   echo '   or: git rstash import-all'
 }
 
@@ -16,7 +17,9 @@ function push() {
 
   echo "Pushing stash $1 to $remote."
 
-  git push $remote stash@{$1}:refs/stashes/$(git rev-parse --short stash@{$1})
+  # use full length of SHA, because length of --short SHA depends on
+  # core.abbrev configuration variable, it can be varied from machine to machine.
+  git push $remote stash@{$1}:refs/stashes/$(git rev-parse stash@{$1})
 }
 
 function fetch() {
@@ -32,12 +35,17 @@ function drop() {
   stashNum="$1"
   shift
   [ -z "$1" ] || remote="$1"
-  stashCommit=$(git rev-parse --short stash@{$stashNum})
+  # use full length of SHA, because length of --short SHA depends on
+  # core.abbrev configuration variable, it can be varied from machine to machine.
+  stashCommit=$(git rev-parse stash@{$stashNum})
 
-  read -p "Really delete stash $stashNum (commit $stashCommit) from $remote? " answer
+  read -p "Really delete stash $stashNum (commit ${stashCommit:0:8}) from $remote and local refs/stashes? " answer
   if [ "$answer" == 'y' ]
   then
+    # remove from remote refs/stashes
     git push $remote :refs/stashes/$stashCommit
+    # remove from local refs/stashes
+    git update-ref -d refs/stashes/$stashCommit
   fi
 }
 
@@ -51,12 +59,18 @@ function import() {
     SHA="$1"
   fi
 
-  # Start at 1 because Git won't save if duplicate of stash 0.
-  for i in $(seq 1 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
-  do
-    # If commit matches existing stash, abort early.
-    diff <(git rev-parse stash@{$i}) <(git rev-parse $SHA) >/dev/null && return 0
-  done
+  # check if refs/stash already exist. If not, it is the first stash commit,
+  # just do the first stash commit. If yes, get the total stash count and
+  # check if current SHA match the existing stash.
+  if [ -n "$(git show-ref | grep -e stash$)" ]
+  then
+    # Start at 1 because Git won't save if duplicate of stash 0.
+    for i in $(seq 1 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
+    do
+      # If commit matches existing stash, abort early.
+      diff <(git rev-parse stash@{$i}) <(git rev-parse $SHA) >/dev/null && return 0
+    done
+  fi
 
   git stash store --message "$(git show --no-patch --format=format:%s $SHA)" $SHA
 }
@@ -71,20 +85,33 @@ function push-all() {
   done
 }
 
+function drop-all() {
+  remote=origin
+  [ -z "$1" ] || remote="$1"
+
+  for i in $(seq 0 $(expr $(git rev-list --walk-reflogs --count stash) - 1))
+  do
+    drop $i "$remote"
+  done
+}
+
 function import-all() {
-  if [ ! -d .git/refs/stashes ]
+  # use git show-ref instead of check the existence of directory .git/refs/stashes,
+  # because in the submodule case, the path of refs was located at .git/modules/<sumodule_name>/refs
+  stashes=$(git show-ref | grep stashes | awk {'print $2'} | awk -F "/" {'print $3'})
+  if [ -z "$stashes" ]
   then
     echo 'Error: no stashes fetched or not in a Git repo.'
   fi
 
-  for stash in $(ls .git/refs/stashes)
+  for stash in $stashes
   do
     import "$stash"
   done
 }
 
 case "$1" in
-  push|push-all|fetch|import|import-all)
+  push|push-all|fetch|import|import-all|drop-all)
     "$@"
     ;;
   drop|remove|delete)
